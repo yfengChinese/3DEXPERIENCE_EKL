@@ -1,0 +1,34 @@
+ 
+--------------------------
+let i(Integer)
+let myStartPoint(Point)
+let myDirection(Line)
+let myDirection02(Line)
+let temp(Feature)
+let myList(List)
+let myGeo(OpenBodyFeature)
+i=1
+myStartPoint=`DGP_First_Tem\Multi Output.12 (Intersect)\StartPoint` 
+myDirection=DGP_First_Tem\Direction 
+myDirection02=DGP_First_Tem\Direction02 
+
+for i while i<=590
+{
+	temp=InstantiateTemplate("Resource1",Output02 )
+	temp->SetAttributeObject("StartPoint",myStartPoint)
+	temp->SetAttributeObject("Direction",myDirection)
+	temp->SetAttributeObject("Direction02",myDirection02)
+	temp->SetAttributeObject("MainLine",`Geometrical Set.1\S_MainLine` )
+	temp->SetAttributeObject("CenterCurve",`Geometrical Set.1\N_CenterCurve`  )
+	
+	EndModifyTemplate(temp)
+	i=i+1
+	
+	myGeo=temp->GetAttributeObject("DGP_Tem")
+	myStartPoint=myGeo.Find("Point","x.Name==\"StartPoint\"",True)
+	myDirection=myGeo.Find("Line","x.Name==\"Direction\"",True)
+	myDirection02=myGeo.Find("Line","x.Name==\"Direction02\"",True)
+	myGeo.Name="DGP_Tem" + (i-1)
+	
+	
+}

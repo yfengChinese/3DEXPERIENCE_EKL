@@ -1,0 +1,59 @@
+/* Action created by MElkhaldi 08/12/2016 */
+
+
+let sheet (DTSheetType)
+sheet = `Knowledge Engineering Specification Physical00014183 A.1\Relations\DesignTable.1\Sheet` 
+
+let separator,cellStr,siteName, buildingName, storeyName, elemAssemblyName, collaborativeSpace,client, projectName, projectNumberSTR(String)
+let projectNumber(Integer)
+
+let aSite(AecSite)
+let aBuilding(VPMInstance)
+let lastStorey(VPMInstance)
+let elemAssembly(VPMInstance)
+aSite = GetEditorRoots("AecSite").GetItem(1) 
+
+let next(Boolean)
+next = true
+let row = 1
+
+separator = "-"
+collaborativeSpace= aSite.GetAttributeString("V_project") 
+projectNumberSTR =  SplitString(collaborativeSpace, separator).GetItem(1)
+projectNumber =projectNumberSTR.ToReal()
+client = SplitString(collaborativeSpace, separator).GetItem(2)
+projectName = SplitString(collaborativeSpace, separator).GetItem(3)
+siteName = collaborativeSpace
+aSite.SetAttributeString("Name", siteName)
+aSite.SetAttributeString("ProjectName", projectName)
+aSite.SetAttributeString("ClientShort", client )
+aSite.SetAttributeReal("ProjectNum", projectNumber)
+
+for row while next{
+	cellStr = sheet.CellAsString(row, 1)
+	if( cellStr=="BUILDING"){
+		buildingName = 	projectNumberSTR+separator+sheet.CellAsString(row,2)
+		aBuilding = new ("Building",buildingName, aSite)
+		aBuilding.Reference.SetAttributeString("Name", buildingName)
+	}
+	else if( cellStr=="STOREY"){
+		storeyName = 	buildingName+separator+sheet.CellAsString(row,3)
+		lastStorey = new ("BuildingStorey", storeyName, aBuilding.Reference)
+		lastStorey.Reference.SetAttributeString("Name", storeyName)
+	}
+	else if (cellStr == "ELEMENT ASSEMBLY"){
+		elemAssemblyName=  storeyName+separator+sheet.CellAsString(row,4)
+		elemAssembly = new ("AecElementAssembly", elemAssemblyName, lastStorey.Reference)
+		elemAssembly.Reference.SetAttributeString("Name", elemAssemblyName)
+	}
+	else if (cellStr == "END"){
+		next = false	
+	}
+	else{
+		next = false	
+	}
+	
+	
+	row=row+1
+	
+}

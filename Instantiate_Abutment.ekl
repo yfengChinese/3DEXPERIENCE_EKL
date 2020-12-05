@@ -1,0 +1,69 @@
+BeamProduct:ProductOccurrence,PierProduct:ProductOccurrence,AXIS_LIST:list,ROAD_CENTER:Curve,ROAD_PLANER:Curve
+/* Action created by 86156 2019/6/5 */
+let i(integer)
+let F1,F2(DocumentTemplate)
+let destination1,destination2(ProductOccurrence)
+destination1=BeamProduct
+destination2=PierProduct
+let axisList(list)
+axisList=AXIS_LIST
+let xlsheet(DTSheetType)
+let xls(string)
+xls="Z:\Code\2020.xlsx"
+set xlsheet=CreateSheet(xls)
+let nb (Integer)
+nb = xlsheet.RowsNb
+Notify("Number:",nb)	
+//
+let L1length(length)
+let R1length(length)
+let L2length(length)
+let R2length(length)
+let PierHeight(length)
+let BeamCount(integer)
+let GapStr(string)
+let DirStr(string)
+//*****************************
+//ProgressBarCreation
+//*****************************
+CreateProgressBar("ProgressBarName")
+i=1
+for i while i <=axisList.Size ()
+{
+	ProgressBarSetValue(100*i/axisList.Size())
+	ProgressBarSetText("finished, and " + floor(axisList.Size()))
+	//
+	//get beam count 
+	set BeamCount= xlsheet->CellAsReal(5+i,32)
+	Notify("BeamCount",BeamCount)
+	if (i==1)
+	{	
+		L1length=xlsheet->CellAsReal(5+i,24)*1m			
+		R1length=xlsheet->CellAsReal(5+i,25)*1m	
+		PierHeight=xlsheet->CellAsReal(5+i,27)*1m	
+		L2length=xlsheet->CellAsReal(5+i,24)*1m	
+		R2length=xlsheet->CellAsReal(5+i,25)*1m
+		Notify("Big_R:",R2length)
+		F2=InstantiateTemplate("Abutment",destination2.Instance)
+		F2->SetAttributeObject("AXIS",axisList.GetItem (i))	
+		F2->SetAttributeDimension("PIER_HEIGHT",PierHeight,"LENGTH")
+		F2->SetAttributeDimension("WIDTH_L",L2length-824mm,"LENGTH")
+		F2->SetAttributeDimension("WIDTH_R",R2length-824mm,"LENGTH")	
+		//F2->SetAttributeString("Stationing" , "Stationing-"+ToString(i) )
+		EndModifyTemplate(F2)	
+	}	
+	else if (i==axisList.Size())
+	{
+		L1length=xlsheet->CellAsReal(5+i,24)*1m
+		R1length=xlsheet->CellAsReal(5+i,25)*1m
+		PierHeight=xlsheet->CellAsReal(5+i,27)*1m
+		L2length=xlsheet->CellAsReal(5+i,24)*1m
+		R2length=xlsheet->CellAsReal(5+i,25)*1m
+		F2=InstantiateTemplate("Abutment",destination2.Instance)
+		F2->SetAttributeObject("AXIS",axisList.GetItem (i))
+		F2->SetAttributeDimension("PIER_HEIGHT",PierHeight,"LENGTH")
+		F2->SetAttributeDimension("WIDTH_L",L2length-824mm,"LENGTH")
+		F2->SetAttributeDimension("WIDTH_R",R2length-824mm,"LENGTH")
+		EndModifyTemplate(F2)	
+	}	
+}

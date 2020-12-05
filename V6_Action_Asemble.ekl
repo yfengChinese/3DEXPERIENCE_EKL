@@ -1,0 +1,34 @@
+Location:VPMReference,My_Axis:OpenBodyFeature,File:String
+/* Created by DS 2020/6/2 */
+let A(Feature)
+let AxisList,list1,list2,list3(List)
+AxisList=My_Axis->Query("AxisSystem","")
+let i,j,k(Integer)
+let AxisTemp(AxisSystem)
+let LocationInstance,F(VPMInstance)
+let Element0, Element1,AxisPubName,a,b(String)
+let AxisConstraint(MRX)
+k=File.Length()
+list2=Location.Children
+j=list2.Size ()
+i=1
+for i while i<=j
+{
+               F=list2[i]
+               a=F.Name ()
+               b=a.Extract(0,k)
+               if b==File
+                              list3->Append (b)
+}
+i=list3.Size ()+1
+for i while i <AxisList->Size()+list3.Size ()+1
+{
+               set  LocationInstance=Location->ManageInstance("KnowledgeResources|"+File,"",File+"_"+ToString(i))
+               AxisTemp=AxisList[i-list3.Size ()]
+               Element0 = Location->CreatePathString(NULL, AxisTemp)
+               AxisPubName="AXIS1"
+               Element1 = Location->CreatePathString(LocationInstance, AxisPubName)
+               AxisConstraint = Location->CreateConstraint("Constraint"+ToString(i), "Coincidence",  Element1, Element0)
+}
+Location.Update()
+

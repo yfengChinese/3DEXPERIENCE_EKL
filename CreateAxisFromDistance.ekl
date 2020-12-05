@@ -1,0 +1,34 @@
+My_Curve:Curve,D:distance
+Let A(AxisSystem)
+Let pt,pt1(Point)
+Let li1,li2,li3(Line )
+Let pl(Plane)
+Let ptlist,oplist(List)
+Let i,j(Integer)
+Let mybox(openBodyFeature)
+Let L(LENGTH)
+Let na(String)
+let shapeContainingPoint(PartFeature)
+
+shapeContainingPoint = GetPLMOwner(My_Curve)
+oplist=shapeContainingPoint.Children
+
+set na=My_Curve.Name
+set mybox=new("openBodyFeature",na+"_Axis",oplist[1])
+set pl=plane(point(0mm,0mm,0mm),point(1mm,0mm,0mm),point(0mm,1mm,0mm))
+L=length(My_Curve)
+j=floor(L/D)
+
+i=1
+for i while i<=j
+{
+	set pt=pointoncurve(My_Curve,NULL,D*i,true)
+	set pt1=project(pt,pl,direction(pl))
+	set li1=linetangent(My_Curve,pt,0mm,20mm,true)
+	set li2=project(li1,pl,direction(pl))
+	set li3=lineangle(li2,pl,pt1,true,20mm,0mm,90deg,true)
+	A=new("AxisSystem","Axis_"+i,mybox)
+	A=axisSystem(pt,direction(li2),direction(li3),direction(pl))
+}
+
+shapeContainingPoint.Update()

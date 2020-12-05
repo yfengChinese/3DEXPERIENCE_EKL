@@ -1,0 +1,33 @@
+let i(integer)
+let k(integer)
+let IsoCrvU(IsoU)
+let IsoCrvV(IsoV)
+let ptList(List)
+let geoSet(GeometricFeature)
+
+i=1
+k=1
+
+for i while i <= `ISO DIVIDE\Relations\Point Pattern by Ratio\PointsU`.Size()
+{
+	IsoCrvU = CreateOrModifyTemplate("IsoCurve|IsoU" ,`ISO DIVIDE\ISO U` ,`ISO DIVIDE\Relations\Iso Curve Pattern by Point\IsoU` ,i) 
+	IsoCrvU.Surface=INPUT\Surface
+	IsoCrvU.Point = `ISO DIVIDE\Relations\Point Pattern by Ratio\PointsU`.GetItem(i)
+	IsoCrvU.Direction = `ISO DIVIDE\REF\Direction`
+	EndModifyTemplate(IsoCrvU)
+	IsoCrvU.Name = "ISO_" + ToString(i)
+	
+	i=i+1
+}
+
+for k while k <= `ISO DIVIDE\Relations\Point Pattern by Ratio\PointsV`.Size()
+{
+	IsoCrvV = CreateOrModifyTemplate("IsoCurve|IsoV" ,`ISO DIVIDE\ISO V` ,`ISO DIVIDE\Relations\Iso Curve Pattern by Point\IsoV` ,k) 
+	IsoCrvV.Surface=INPUT\Surface
+	IsoCrvV.Point = `ISO DIVIDE\Relations\Point Pattern by Ratio\PointsV`.GetItem(k)
+	IsoCrvV.Direction = `ISO DIVIDE\REF\Direction`
+	EndModifyTemplate(IsoCrvV)
+	IsoCrvV.Name = "ISO_" + ToString(k)
+	
+	k=k+1
+}

@@ -1,0 +1,31 @@
+
+// XUS
+
+let i(inetger)
+let x,y,z(length)
+let p(point)
+let l(list)
+let dt(SheetType)
+
+dt=....
+l =XX.Query("","Point")
+
+i =1 
+for i While i<=l.Size()
+{
+    set p = l.GetItem(i)
+
+    x = distance(yzpln,p)
+    y = distance(xzpln,p)
+    z = distance(xypln,p)       
+
+    dt.SetCell(i,1,x)
+    dt.SetCell(i,2,y)
+    dt.SetCell(i,3,z)
+
+}
+    
+
+
+
+

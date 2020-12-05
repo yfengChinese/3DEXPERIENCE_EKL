@@ -1,0 +1,38 @@
+
+/* ActionCoder liudi 2020/10/21 */
+let cu,cu1,cu2(Curve )
+let list1,list2(List )
+let pt,pt1,pt2(Point )
+let box1,box2(OpenBodyFeature )
+let i,j,b(Integer )
+let a(Real)
+let L(LENGTH )
+let su(Surface )
+
+list1=disassemble(`GeometricalSet`,false ) 
+b=50
+box1=new("OpenBodyFeature","拆解曲线",`3D 形状00000586`)
+box2=new("OpenBodyFeature","拉伸",`3D 形状00000586`)
+j=list1.Size ()
+i=1
+for i while i<=j
+{
+ cu1=new("Curve","0"+i,box1)
+ set cu1=list1[i]
+ list2=cu1.GetSubElements(0)                                   
+ a=Rand()*b                                                           
+ if list2.Size ()==0
+ {
+  cu1.Color ="yellow"
+  su=new("Surface","Box_"+i,box2)
+  su=extrude(cu1,direction(`xy Plane` ),-(a+10)*1mm,0mm,true)
+  su.Color ="white"
+ }
+ else
+ {
+  cu1.Show =false
+  continue
+ }        
+}
+
+`3D 形状00000586`.Update ()

@@ -1,0 +1,88 @@
+BeamProduct:ProductOccurrence,PierProduct:ProductOccurrence,AXIS_LIST:list,ROAD_CENTER:Curve,ROAD_PLANER:Curve
+
+/* Action created by 86156 2019/6/5 */
+
+let i(integer)
+let F1,F2(DocumentTemplate)
+
+let destination1,destination2(ProductOccurrence)
+destination1=BeamProduct
+destination2=PierProduct
+
+let axisList(list)
+axisList=AXIS_LIST
+
+let xlsheet(DTSheetType)
+let xls(string)
+xls="Z:\Code\2020.xlsx"
+set xlsheet=CreateSheet(xls)
+let nb (Integer)
+nb = xlsheet.RowsNb
+Notify("NB:",nb)	
+
+
+let L1length(length)
+let R1length(length)
+let L2length(length)
+let R2length(length)
+let PierHeight(length)
+let BeamCount(integer)
+let GapStr(string)
+let DirStr(string)
+
+
+CreateProgressBar("ProgressBar Name")
+
+i=1
+for i while i <=axisList.Size ()
+{
+	ProgressBarSetValue(100*i/axisList.Size())
+	ProgressBarSetText("" + floor(axisList.Size()))
+	set BeamCount= xlsheet->CellAsReal(5+i,32)
+	Notify("BeamCount：",BeamCount)
+	if (i>1)
+	{
+	
+		L1length=xlsheet->CellAsReal((5+(i-1)),24)*1m
+		R1length=xlsheet->CellAsReal((5+(i-1)),25)*1m
+		L2length=xlsheet->CellAsReal(5+i,24)*1m
+		R2length=xlsheet->CellAsReal(5+i,25)*1m
+		GapStr=xlsheet->CellAsString((5+(i-1)),33)
+		DirStr=xlsheet->CellAsString((5+(i-1)),34)
+
+		F1=InstantiateTemplate("Re1",destination1.Instance)
+		F1->SetAttributeObject("P1",axisList.GetItem (i-1))
+		F1->SetAttributeObject("P2",axisList.GetItem (i))
+		F1->SetAttributeObject("ROAD_CENTER",ROAD_CENTER )
+		F1->SetAttributeObject("ROAD_PLANER",ROAD_PLANER)
+		
+
+		F1->SetAttributeDimension("P1_LW",L1length,"LENGTH")
+		F1->SetAttributeDimension("P1_RW",R1length,"LENGTH")
+		F1->SetAttributeDimension("P2_LW",L2length,"LENGTH")
+		F1->SetAttributeDimension("P2_RW",R2length,"LENGTH")
+		F1->SetAttributeInteger("BEAM_COUNT",BeamCount)
+		F1->SetAttributeString("GapCheck",GapStr)
+		F1->SetAttributeString("DirCheck",DirStr)
+		
+		EndModifyTemplate(F1)
+		
+	}
+	
+
+	PierHeight=xlsheet->CellAsReal(5+i,27)*1m
+	Notify("PierHeight:",PierHeight)
+	
+	L2length=xlsheet->CellAsReal(5+i,24)*1m
+	R2length=xlsheet->CellAsReal(5+i,25)*1m
+
+	F2=InstantiateTemplate("P2",destination2.Instance)
+	F2->SetAttributeObject("AXIS",axisList.GetItem (i))
+
+	F2->SetAttributeDimension("PIER_HEIGHT",PierHeight,"LENGTH")
+	F2->SetAttributeDimension("WIDTH_L",L2length-824mm,"LENGTH")
+	F2->SetAttributeDimension("WIDTH_R",R2length-824mm,"LENGTH")
+
+	EndModifyTemplate(F2)
+	
+}

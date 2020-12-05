@@ -1,0 +1,15 @@
+
+let F (Feature)
+set F = UDF\PARAMETERS 
+F ->SetAttributeDimension("BeamWidth",7600mm,"Length")
+F ->SetAttributeDimension("FlangeEndHeight",232mm,"Length")
+F ->SetAttributeDimension("FlangeRootHeight",600mm,"Length")
+F ->SetAttributeDimension("MidSpanFulcrumBeamHeight",2200mm,"Length")
+F ->SetAttributeDimension("CircularChamfer",200mm,"Length")
+F ->SetAttributeDimension("FlangeWidth",2000mm,"Length")
+F ->SetAttributeDimension("StraightFlangeLength",1800mm,"Length")
+F ->SetAttributeDimension("MidSpanFulcrumChamferWidth",2500mm,"Length")
+F ->SetAttributeDimension("MidSpanFulcrumChamferHeight",700mm,"Length")
+F ->SetAttributeDimension("RailBaseToDeckHeight",549mm,"Length")
+F ->SetAttributeDimension("PierLongitudinalBridgeLength",2000mm,"Length")
+F ->SetAttributeString("Type","Single")

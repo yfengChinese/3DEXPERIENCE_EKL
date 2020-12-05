@@ -1,0 +1,79 @@
+let uvloop(Integer)
+let uvInstance(Integer)
+let uInstance(Integer)
+let vInstance(Integer)
+let i(Integer)
+let sp(Point)
+let pt(Point)
+let crv(Curve)
+let direction(Boolean)
+let distance(Length)
+let geoSet(GeometricFeature)
+let OffsetU(Integer)
+let OffsetV(Integer)
+
+distance = `ISO DIVIDE\Parameters\PtDistance` 
+
+if `ISO DIVIDE\Parameters\AutoInstanceUV` == true
+{
+	uInstance = floor(length(`ISO DIVIDE\REF\IsoCrv V`)/distance/2)*2
+	vInstance = floor(length(`ISO DIVIDE\REF\IsoCrv U`)/distance/2)*2
+}
+else
+{
+	uInstance = `ISO DIVIDE\Parameters\NbInstanceU` 
+	vInstance = `ISO DIVIDE\Parameters\NbInstanceV` 
+}
+
+if `ISO DIVIDE\Parameters\AlignCenter` == true
+{
+	OffsetU = uInstance / 2
+	OffsetV = vInstance / 2
+}
+else
+{
+	OffsetU = `ISO DIVIDE\Parameters\NbInstanceUOffset`
+	OffsetV = `ISO DIVIDE\Parameters\NbInstanceVOffset`
+}
+
+
+uvloop = 1
+for uvloop while uvloop <= 2
+{
+	if uvloop ==1
+	{
+		crv = `ISO DIVIDE\REF\IsoCrv V` 
+		sp = INPUT\Point
+		geoSet = `ISO DIVIDE\POINTS U`
+		direction = `ISO DIVIDE\Parameters\DirectionU` 
+		uvInstance = uInstance
+		
+	}
+	else
+	{
+		crv = `ISO DIVIDE\REF\IsoCrv U`
+		sp = INPUT\Point 
+		geoSet = `ISO DIVIDE\POINTS V`
+		direction = `ISO DIVIDE\Parameters\DirectionV` 
+		uvInstance = vInstance
+	}
+	
+	i = 1
+	For i while i <= uvInstance+1
+	{
+		if uvloop == 1
+			Set pt = CreateOrModifyDatum ("Point" , geoSet , `ISO DIVIDE\Relations\Point Pattern by Ratio\PointsU` , i)
+		else 
+			Set pt = CreateOrModifyDatum ("Point" , geoSet , `ISO DIVIDE\Relations\Point Pattern by Ratio\PointsV` , i)
+		
+		if uvloop == 1
+			pt=pointoncurve(crv ,sp ,distance*(i-OffsetU-1 ) ,direction)
+		else
+			pt=pointoncurve(crv ,sp ,distance*(i-OffsetV-1 ) ,direction)
+		
+		pt.Name = "PT_" + ToString(i)
+		
+		i = i+1
+	}
+}
+

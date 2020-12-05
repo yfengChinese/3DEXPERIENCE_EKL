@@ -1,0 +1,146 @@
+Location:PartFeature,FileLocation:String
+/*  demo  */
+Let FileName,A(String)
+Let mySheet(DTSheetType)
+Let indx,noOfRows,i,j(Integer)
+//let s(String)
+Let F(UserFeature)
+Let endpoint,changepoint,realpoint,testpoint(Point)
+Let in_line,myline(Line)
+Let my_box,my_box1,my_box2(OpenBodyFeature)
+Let my_dis1,my_dis2,testlength(Length)
+Let pointlist,linelist,mylist,alllist,chlist,relist,flist,ch_list,culist,mylinelist,yuanlist(List)
+Let mycurve,cu1,cu2,realcurve,cu3(Curve )
+Let z_dire(Plane)
+Let mysurface,mysurface1(Surface)
+Let B(Boolean)
+z_dire=plane(point(0mm,0mm,0mm),point(1mm,0mm,0mm),point(0mm,1mm,0mm))
+FileName = FileLocation		//表格位置
+Set mySheet = CreateSheet(FileName)		//设计表
+noOfRows = mySheet.RowsNb	//	设计表行数
+my_box=new("OpenBodyFeature","Alignment",Location)
+my_box1=new("OpenBodyFeature","PlanerCurve",my_box)
+my_box2=new("OpenBodyFeature","ControlPoint",my_box1)
+indx = 2
+for indx while mySheet->CellAsString(indx,3)<>""
+{
+	my_dis1 =mySheet->CellAsReal(indx,3) *1mm
+	my_dis2 = mySheet->CellAsReal(indx, 4)*1mm
+	//Notify("距离= ",my_dis2)
+	endpoint=new("Point","Control_Point"+(indx-1),my_box2)
+	endpoint=point(my_dis1,my_dis2,0mm)
+	pointlist->Append(endpoint)
+	endpoint.Show =false
+}
+my_box2=new("OpenBodyFeature","PointLine",my_box1)
+i=1
+for i while i<=pointlist.Size()-1
+{
+	in_line=new("Line",Line_"+i,my_box2)
+	in_line=line(pointlist[i],pointlist[i+1])
+	linelist->Append(in_line)
+	in_line.Show =false
+}
+my_box2=new("OpenBodyFeature","CordCurve",my_box1)
+i=1
+for i while i<=linelist.Size ()-1
+{
+	F=InstantiateTemplate("KnowledgeResources|HHQX",my_box2)
+	F->SetAttributeObject("B_LINE",linelist[i])
+	F->SetAttributeObject("A_LINE",linelist[i+1])
+	F->SetAttributeReal("R",mySheet->CellAsReal(i+2, 5)*1mm)
+	F->SetAttributeReal("lt",mySheet->CellAsReal(i+2, 6)*1mm)
+	EndModifyTemplate(F)
+	F.Name="缓和曲线_"+i
+	F.Show =false
+}
+mylist=my_box2->Query("Curve",NULL)
+set cu1=assemble(linelist)
+set cu2=assemble(mylist)
+mycurve=new("Curve","平曲线",my_box1)
+mycurve=trim(cu1,true,cu2,false)			// 平曲线
+my_box2=new("OpenBodyFeature","点连线",my_box1)
+mysurface=new("Surface","立面",my_box2)
+mysurface=extrude(mycurve,direction(z_dire),100000mm,1000000mm,true)
+mysurface.Show =false
+F=InstantiateTemplate("KnowledgeResources|ZKQM",my_box2)
+F->SetAttributeObject("sur",mysurface)
+F->SetAttributeObject("pt1",pointlist[1])
+F->SetAttributeObject("li1",linelist[1])
+EndModifyTemplate(F)
+F.Name ="展开曲面"
+F.Show =false
+culist=my_box2->Query("Surface","x.Name  == \"展开曲面\"")
+mysurface1=new("Surface","展开面",my_box2)
+set mysurface1=assemble(culist)
+mysurface1.Show =false
+set cu3=intersect(mysurface1,z_dire)
+cu3.Show =false
+testpoint=new("Point","判断点",my_box2)
+testpoint=pointoncurveRatio(cu3,pointlist[1],0.1,true)
+testpoint.Show =false
+testlength=distance(pointlist[1],testpoint)
+if testlength==0mm
+	B=false
+else
+	B=true
+my_box1=new("OpenBodyFeature","空间线",my_box)
+my_box2=new("OpenBodyFeature","变坡点",my_box1)
+i=2
+for i while mySheet->CellAsString(i,8)<>""
+{
+	my_dis1=mySheet->CellAsReal(i,8) *1mm
+	changepoint=new("Point","变坡点_"+(i-1),my_box2)
+	changepoint=pointoncurve(cu3,pointlist[1],my_dis1,B)
+	changepoint.Show =false
+	chlist->Append(changepoint)
+}
+my_box2=new("OpenBodyFeature","空间点",my_box1)
+i=1
+for i while i<=chlist.Size ()
+{
+	my_dis2=mySheet->CellAsReal(i+1,9) *1mm
+	realpoint=new("Point","空间点_"+i,my_box2)
+	set realpoint=translate(chlist[i],direction(z_dire),my_dis2)
+	realpoint.Show =false
+	relist->Append(realpoint)
+}
+my_box2=new("OpenBodyFeature","空间线",my_box1)
+i=1
+for i while i<=relist.Size ()-1
+{
+	myline=new("Line","连线_"+i,my_box2)
+	myline=line(relist[i],relist[i+1])
+	myline.Show =false
+	mylinelist->Append(myline)
+	myline.Show =false
+}
+my_box2=new("OpenBodyFeature","圆曲线",my_box1)
+i=1
+for i while i<=mylinelist.Size ()-1
+{
+	F=InstantiateTemplate("KnowledgeResources|yuan",my_box2)
+	F->SetAttributeObject("line1",mylinelist[i])
+	F->SetAttributeObject("line2",mylinelist[i+1])
+	F->SetAttributeReal("R",mySheet->CellAsReal(i+2, 10)*1mm)
+	EndModifyTemplate(F)
+	F.Show =false
+}
+yuanlist=my_box2->Query("Curve",NULL)
+set cu1=assemble(yuanlist)
+set cu2=assemble(mylinelist)
+realcurve=new("Curve","竖曲线",my_box1)
+//set realcurve=trim(cu1,false,cu2,true)
+if B==true
+	realcurve=trim(cu1,false,cu2,true)
+else
+	set realcurve=invert(trim(cu1,false,cu2,true))
+realcurve.Show =false
+F=InstantiateTemplate("KnowledgeResources|ZDQM",my_box)
+F->SetAttributeObject("sur",mysurface)
+F->SetAttributeObject("pt1",pointlist[1])
+F->SetAttributeObject("li1",linelist[1])
+F->SetAttributeObject("my_curve",realcurve)
+EndModifyTemplate(F)
+F.Name ="空间骨架线"
+Location->Update()

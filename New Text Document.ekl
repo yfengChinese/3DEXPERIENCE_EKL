@@ -1,0 +1,75 @@
+let curve(Curve)
+let NbOfAxis (Integer)
+let Spacing(length)
+/*Spacing is the curvilinear length between 2 axis*/
+let Offset(length)
+/* see explanations below*/
+let i (integer)
+let p (point)
+let A(AxisSystem)
+let DirMainNormal(direction)
+let Dx(direction)
+let DirectionVertical(Direction)
+let Vvertical (Vector)
+let Vhorizontal(vector)
+let V1(Vector)
+let V2(Vector)
+let V2N(Vector)
+/*V2N is opposite of V2*/
+let V3(Vector)
+let V3z (Real)
+let V2tempo (Vector)
+/*V2tempo issed to switch V2 and V2N*/
+let body (OpenBodyFeature)
+let NameOfGS (String)
+
+NbOfAxis =My_NbOfAxis  
+curve=`Geometrical Set.1\Sketch.3`  
+
+/*/////////////////YOU CAN MODIFY THE VARIABLES BELOW/////////////////*/
+NameOfGS="Sk_Normal_Axis_Along_Curve"
+Spacing=length(curve) /  (NbOfAxis+1)
+Offset=Spacing/2
+/*
+NameOfGS is the name of the GeometricalSet where all axis system will be created
+Offset is the distance on the curve to the first axis.
+For instantiation of identical segment, Offset should be half of the Spacing
+/////////////////////////////////////////////////////////////////////////////////////*/
+set body = new("OpenBodyFeature",NameOfGS,`XUS3D Shape00000076 A.1`  )
+
+i = 1
+for i while i <=NbOfAxis 
+{
+	p = pointoncurve(curve,NULL,i*Spacing,true)
+	A = CreateOrModifyDatum("AxisSystem",body,`Relations\Knowledge Pattern.1\List.1` ,i)
+	Dx = direction(linetangent(curve,p,0mm,1m,False))
+	/*DirMainNormal  = direction(linetangent(project(mainnormal(PartBody\Spline.1,p),`xy plane`),p,0mm,1m,false))*/
+	/*DirMainNormal  = direction(linetangent(mainnormal(curve,p),p,0mm,1m,false))*/
+	V1 = Dx->Vector()
+	DirectionVertical=direction(`xy plane`  )
+	Vvertical=DirectionVertical->Vector()
+	Vhorizontal=[ (Vvertical.Get(2,1) * V1.Get(3,1) )- (Vvertical.Get(3,1) * V1.Get(2,1) );
+	(Vvertical.Get(3,1) * V1.Get(1,1) )- (Vvertical.Get(1,1) * V1.Get(3,1) ); 
+	(Vvertical.Get(1,1) * V1.Get(2,1) )- (Vvertical.Get(2,1) * V1.Get(1,1) )]
+	/*Vhorizontal is Cross Product of Vvertical, V1*/
+	/*OLD Notify("V1 ,#,#,#",V1.Get(1,1) ,V1.Get(2,1) ,V1.Get(3,1))*/
+	V2 = Vhorizontal
+	V2N=[-1*V2.Get(1,1);-1*V2.Get(2,1);-1*V2.Get(3,1)]
+	Notify("V2 ,#,#,#",V2.Get(1,1) ,V2.Get(2,1) ,V2.Get(3,1))
+	V3z=(V1.Get(1,1) * V2.Get(2,1) )- (V1.Get(2,1) * V2.Get(1,1) )
+	if V3z<0
+	{Notify ("V3 is down")
+		V2tempo=V2
+		V2=V2N
+		V2N=V2tempo
+	}
+	/*This previous "if loop" will ensure Z is always oriented upward*/
+	V3 = [ (V1.Get(2,1) * V2.Get(3,1) )- (V1.Get(3,1) * V2.Get(2,1) );
+	(V1.Get(3,1) * V2.Get(1,1) )- (V1.Get(1,1) * V2.Get(3,1) ); 
+	(V1.Get(1,1) * V2.Get(2,1) )- (V1.Get(2,1) * V2.Get(1,1) )]
+	/*V3 is Cross Product of V1, V2*/
+	
+	A=axisSystem(p,Dx, V2->Direction(),V3->Direction())
+	A.Name="AXS_"+i
+	
+}
